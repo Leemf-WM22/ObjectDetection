@@ -41,25 +41,31 @@ def initialize_webcam():
 # Streamlit app
 st.title("Real-Time Object Detection")
 
-# Initialize the webcam
-cap = initialize_webcam()
+# Manage webcam state
+if 'cap' not in st.session_state:
+    st.session_state.cap = None
 
-if cap is None:
-    st.error("Could not open webcam. Please ensure that the webcam is connected and enabled.")
-    st.text("To use this application, you need to allow access to your webcam. Please check your browser or device settings to ensure the webcam is enabled.")
-    if st.button("Retry Webcam"):
-        cap = initialize_webcam()
+def start_webcam():
+    st.session_state.cap = initialize_webcam()
+
+# Start Webcam Button
+if st.button("Start Webcam"):
+    start_webcam()
+
+# Check if the webcam is initialized
+if st.session_state.cap is None:
+    st.error("Webcam not started. Please click 'Start Webcam' to initialize.")
 else:
     freeze = st.checkbox("Freeze")
 
     if not freeze:
-        ret, frame = cap.read()
+        ret, frame = st.session_state.cap.read()
 
         # Check if a frame was successfully captured
         if not ret:
             st.error("Failed to capture frame from webcam. Please try again.")
-            cap.release()
-            cap = initialize_webcam()
+            st.session_state.cap.release()
+            st.session_state.cap = initialize_webcam()
         else:
             height, width, channels = frame.shape
 
@@ -121,4 +127,7 @@ else:
 
             st.text(f"Total: RM{total_price}")
 
-    cap.release()
+    # Release the webcam when done
+    if st.button("Stop Webcam"):
+        st.session_state.cap.release()
+        st.session_state.cap = None
