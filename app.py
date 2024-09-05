@@ -31,20 +31,24 @@ net = cv2.dnn.readNet(weight_path, cfg_path)
 with open(coco_path, "r") as f:
     classes = [line.strip() for line in f.readlines()]
 
+# Function to initialize the webcam
+def initialize_webcam():
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        return None
+    return cap
+
 # Streamlit app
 st.title("Real-Time Object Detection")
 
-# Initialize webcam
-cap = cv2.VideoCapture(0)
+# Initialize the webcam
+cap = initialize_webcam()
 
-def show_webcam_error():
+if cap is None:
     st.error("Could not open webcam. Please ensure that the webcam is connected and enabled.")
     st.text("To use this application, you need to allow access to your webcam. Please check your browser or device settings to ensure the webcam is enabled.")
-    st.button("Retry Webcam", on_click=lambda: st.experimental_rerun())
-
-# Check if the webcam is opened correctly
-if not cap.isOpened():
-    show_webcam_error()
+    if st.button("Retry Webcam"):
+        cap = initialize_webcam()
 else:
     freeze = st.checkbox("Freeze")
 
@@ -54,7 +58,8 @@ else:
         # Check if a frame was successfully captured
         if not ret:
             st.error("Failed to capture frame from webcam. Please try again.")
-            show_webcam_error()
+            cap.release()
+            cap = initialize_webcam()
         else:
             height, width, channels = frame.shape
 
