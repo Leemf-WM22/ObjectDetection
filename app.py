@@ -3,7 +3,22 @@ import cv2
 import numpy as np
 import re
 from PIL import Image
+import os
+import urllib.request
 
+weight_path = "yolov3.weights"
+cfg_path = "yolov3.cfg"
+
+# Download yolov3.weights if it doesn't exist
+if not os.path.exists(weight_path):
+    st.text("Downloading YOLOv3 weights...")
+    urllib.request.urlretrieve("https://pjreddie.com/media/files/yolov3.weights", weight_path)
+
+# Download yolov3.cfg if it doesn't exist
+if not os.path.exists(cfg_path):
+    st.text("Downloading YOLOv3 config...")
+    urllib.request.urlretrieve("https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3.cfg", cfg_path)
+    
 # Load YOLO model
 net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
 layer_names = net.getLayerNames()
