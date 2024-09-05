@@ -37,9 +37,14 @@ st.title("Real-Time Object Detection")
 # Initialize webcam
 cap = cv2.VideoCapture(0)
 
+def show_webcam_error():
+    st.error("Could not open webcam. Please ensure that the webcam is connected and enabled.")
+    st.text("To use this application, you need to allow access to your webcam. Please check your browser or device settings to ensure the webcam is enabled.")
+    st.button("Retry Webcam", on_click=lambda: st.experimental_rerun())
+
 # Check if the webcam is opened correctly
 if not cap.isOpened():
-    st.error("Could not open webcam. Please ensure that the webcam is connected.")
+    show_webcam_error()
 else:
     freeze = st.checkbox("Freeze")
 
@@ -48,7 +53,8 @@ else:
 
         # Check if a frame was successfully captured
         if not ret:
-            st.error("Failed to capture frame from webcam.")
+            st.error("Failed to capture frame from webcam. Please try again.")
+            show_webcam_error()
         else:
             height, width, channels = frame.shape
 
